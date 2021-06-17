@@ -18,14 +18,17 @@ SG는 영상의 전체 프레임이 인풋으로 주어지면, 각 프레임의 
 SD는 실제 Ground Truth 요약 영상과 SG가 생성한 요약 영상을 인풋으로 받아, 이 영상이 실제로 요약된 영상인지, 아니면 SG가 생성한 영상인지 구분하는 모델이다.
 
 <img width="300" alt="SG" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/SG.png?raw=true"><br>
+| <b>Summary Generator (SG)</b>
 
 
-<img width="300" alt="SD" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/SD.png?raw=true">
+<img width="300" alt="SD" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/SD.png?raw=true"> <br>
+| <b>Summary Discriminator (SD)</b>
 
 
 SG와 SD는 모두 FCSN이라 불리는 Fully Connected Sequence Network를 사용했는데, 이는 영상의 긴 프레임간의 관계를 저장하고 모델링하기 적합한 구조이다.
 
-<img width="500" alt="FCSN" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/FCSN.png?raw=true">
+<img width="500" alt="FCSN" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/FCSN.png?raw=true"> <br>
+| <b>Fully Connected Sequence Network (FCSN)</b>
 
 FCSN의 구조를 조금 더 구체적으로 살펴보면, 영상 프레임에서 feature를 추출하는 Encoder 부분과, 
 이 feature를 사용해서 importance score를 매기고, 중요하다고 판단되는 프레임을 선택하는 decoder 부분으로 이루어져 있다. 
@@ -33,6 +36,7 @@ SG는 이 Encoder와 Decoder 전체 부분을 거쳐 영상에서 중요한 부�
 
 
 <img width="600" alt="Framework" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/Framework.png?raw=true"><br>
+| <b>모델 학습 과정</b>
 
 전반적인 모델 학습 구조는 위 그림과 같다.
 먼저 원본 영상 프레임이 SG에 인풋으로 들어오면, 아웃풋으로 요약 영상을 생성한다.
@@ -42,18 +46,20 @@ SG와 SD의 아웃풋으로 각각 loss가 계산되고, 이를 통해 SG와 SD�
 ## Loss Functions
 모델 학습을 위한 loss function은 총 세 개가 사용되었다.
 
-<img width="400" alt="avdloss" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/Advloss.png?raw=true">
+<img width="400" alt="avdloss" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/Advloss.png?raw=true"><br>
+| <b>Adversarial loss</b>
 
 첫 번째는 adversarial loss로, SG가 영상을 요약하고 SD가 구분을 할 때 발생하는 loss 값을 줄이는 것을 목적으로 한다.
 SG는 영상을 실제 요약 영상처럼 만드는 방향으로, SD는 실제 영상과 생성된 영상을 잘 구분하기 위한 방향으로 학습한다.
 
-<img width="400" alt="recloss" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/Recloss.png?raw=true">
-
+<img width="400" alt="recloss" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/Recloss.png?raw=true"><br>
+| <b>Reconstruction loss</b>
 
 두 번째는 reconstruction loss로, 요약 영상을 만드는 SG가 decoder를 통해 재구현한 frame들과 실제 영상 frame간의 차이를 최소화하기 위한 방향으로 학습한다.
 위 수식을 보면, 실제 영상의 프레임과 재구성된 영상의 프레임간 차이를 비교하고, 이를 최소화하는 방향으로 학습하는 것을 볼 수 있다.
 
-<img width="400" alt="divloss" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/Divloss.png?raw=true">
+<img width="400" alt="divloss" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/Divloss.png?raw=true"><br>
+| <b>Diversity loss</b>
 
 마지막으로 diversity loss는 SG를 거쳐 중요하다고 판단된 프레임들을 시각적으로 다양하게 만드는 방향으로 학습한다.
 위 수식에서도 볼 수 있듯이, 추출된 모든 프레임간의 코사인 유사도를 각각 계산하고, 이를 최소화하는 방향으로 학습한다.
@@ -68,13 +74,15 @@ SG는 영상을 실제 요약 영상처럼 만드는 방향으로, SD는 실제 
 |OVP| 47| 3 | 50 |
 |YouYube| 36 | 3 | 39 |
 |SumMe| 22 | 3 | 25 |
-|__total__| __152__ | __12__ | __164__ |
+|__Total__| __152__ | __12__ | __164__ |
+
 
 이번 프로젝트에서는 unpaired 데이터셋을 만들어서 학습을 진행하려 했기 때문에, 트레인셋으로 사용할 152개 데이터를 랜덤으로 76개씩 나누어서 하나는 SG의 인풋으로 원본 영상만 사용하고, 다른 하나는 SD의 Ground Truth 인풋으로 요약된 영상만을 사용했다. 이런 방법으로 unpaired 데이터셋을 생성하였고, 이를 통해 영상 요약 모델이 훈련 데이터에 종속되는 것을 줄이고자 했다.
 
 ## Feature Extraction
 
-<img width="300" alt="feature" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/Feature.png?raw=true">
+<img width="600" alt="feature" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/Feature.png?raw=true"><br>
+| <b>Feature extraction 과정</b>
 
 
 모델에 실제 인풋으로 들어갈 데이터셋을 만들기 위한 feature creation을 진행했다.
@@ -84,8 +92,8 @@ GoogLeNet의 pool5 layer라 불리는 부분에서 feature를 추출한다.
 
 ## 결과
 
-<img width="300" alt="f score equation" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/F-score-equation.png?raw=true">
-
+<img width="300" alt="f score equation" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/F-score-equation.png?raw=true"><br>
+| <b>F1 score 계산 방법</b>
 
 모델 성능 측정을 위해 위 그림과 같은 방법으로 F1 score를 측정했다.
 
@@ -101,8 +109,8 @@ GoogLeNet의 pool5 layer라 불리는 부분에서 feature를 추출한다.
 
 아래 그래프는 모델 학습 중 10 epoch 당 F1 score를 나타낸 것이다.
 
-<img width="300" alt="f score" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/F-score.png?raw=true">
-
+<img width="300" alt="f score" src="https://github.com/twy00/swcon-capstone-design/blob/main/presentation/F-score.png?raw=true"><br>
+| <b>10 epoch 당 F1 score</b>
 
 ## 결론
 
