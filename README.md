@@ -14,6 +14,6 @@
 ## 모델 구조
 모델은 크게 Summary Generator(SG)와 Summary Discriminator(SD)가 있다.
 SG는 영상의 전체 프레임이 인풋으로 주어지면, 각 프레임의 importance score를 매기고, 이를 통해 영상의 요약 부분이 생성된다. SD는 실제 Ground Truth 요약 영상과 SG가 생성한 요약 영상을 인풋으로 받아, 이 영상이 실제로 요약된 영상인지, 아니면 SG가 생성한 영상인지 구분하는 모델이다.
-![Summary Generator(SG) 구조 ](https://github.com/twy00/swcon-capstone-design/blob/main/presentation/SG.png)
+![Summary Generator(SG) 구조 ](https://github.com/twy00/swcon-capstone-design/blob/main/presentation/SG.png){: width="50%" height="50%"}
 
 SG와 SD는 모두 FCSN이라 불리는 Fully Connected Sequence Network를 사용했는데, 이는 영상의 긴 프레임간의 관계를 저장하고 모델링하기 적합한 구조이다.
